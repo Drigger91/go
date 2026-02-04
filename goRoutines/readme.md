@@ -91,3 +91,123 @@ If timeout happens first → return ("", false)
 Use:
 - select
 - time.After(timeout) 
+
+
+# Go Concurrency Practice — Extensions (Level 2 → Level 3)
+
+This document extends the **basic goroutines + channels exercises** into
+real-world concurrency patterns used in backend systems and interviews.
+
+Focus areas:
+- worker pools
+- fan-in / fan-out
+- cancellation
+- rate limiting
+- scheduling
+- error propagation
+- backpressure
+
+The goal is **correctness > cleverness**.
+
+---
+
+## Level 2 — Concurrency Patterns
+
+### Q2.1: Worker Pool (Bounded Concurrency)
+
+**Concept:**  
+Limit the number of goroutines processing jobs concurrently.
+
+**Problem:**
+- Jobs: integers `1..20`
+- Start **3 worker goroutines**
+- Each worker:
+  - reads from `jobs` channel
+  - sleeps for `300ms`
+  - prints:  
+    ```
+    worker <id> processed job <jobId>
+    ```
+- Main:
+  - sends all jobs
+  - closes the jobs channel
+  - waits for all workers to finish
+
+**Constraints:**
+- No `time.Sleep` in `main`
+- Use `sync.WaitGroup`
+- No global variables
+
+**What this tests:**
+- correct channel closing
+- worker lifecycle management
+- avoiding goroutine leaks
+
+---
+
+### Q2.2: Fan-out → Fan-in (Merge Channels)
+
+**Concept:**  
+Multiple producers → single consumer.
+
+**Problem:**
+- Producer A sends **even numbers** `0..10`
+- Producer B sends **odd numbers** `1..9`
+- Each producer has its **own channel**
+- Merge both into **one output channel**
+- Main ranges over output channel and prints values
+
+**Hints:**
+- Use `select`
+- Close output channel **only after both producers finish**
+
+**What this tests:**
+- coordination correctness
+- avoiding premature close
+- select-based merging
+
+---
+
+### Q2.3: Cancellation-aware Worker Pool
+
+**Concept:**  
+Graceful shutdown using cancellation signals.
+
+**Problem:**
+- Extend Q2.1 worker pool
+- Add a `done` channel
+- Workers must:
+  - stop immediately when `done` is closed
+  - exit cleanly
+- Main:
+  - starts workers
+  - sends jobs
+  - cancels execution after `1 second`
+
+**Rules:**
+- No goroutine should block forever
+- No job should be processed after cancellation
+
+**What this tests:**
+- cancellation patterns
+- select usage
+- goroutine lifecycle discipline
+
+---
+
+### Q2.4: Rate Limiter (Token Bucket – Simplified)
+
+**Concept:**  
+Control throughput using time.
+
+**Problem:**
+- Jobs: `1..10` arrive immediately
+- Allow **only 1 job every 500ms**
+- Use a `time.Ticker`
+- Process job only when:
+  - a token is available
+  - a job exists
+
+**Hint:**
+```go
+ticker := time.NewTicker(500 * time.Millisecond)

@@ -4,6 +4,8 @@ import (
 	"fmt"
 	"sync"
 	"time"
+
+	"github.com/Drigger91/go/concurrency/l2"
 )
 
 func main() {
@@ -60,18 +62,19 @@ func main() {
 
 	// waitGroupDemo()
 
-	ch := make(chan string)
-	go func() {
-		defer close(ch)
-        msgs := []string{"msg1", "msg2", "msg3"}
-        for _, m := range msgs {
-            time.Sleep(400 * time.Millisecond)
-            ch <- m
-        }
-    }()
+	// ch := make(chan string)
+	// go func() {
+	// 	defer close(ch)
+    //     msgs := []string{"msg1", "msg2", "msg3"}
+    //     for _, m := range msgs {
+    //         time.Sleep(400 * time.Millisecond)
+    //         ch <- m
+    //     }
+    // }()
 
-    waitForMessage(ch, 1 * time.Second)
-    fmt.Println("Main done")
+    // waitForMessage(ch, 1 * time.Second)
+    // fmt.Println("Main done")
+	l2.L2Main()
 }
 
 func channelCancelMain() {
