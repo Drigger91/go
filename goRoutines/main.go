@@ -74,7 +74,8 @@ func main() {
 
     // waitForMessage(ch, 1 * time.Second)
     // fmt.Println("Main done")
-	l2.L2Main()
+	//l2.L2Main()
+	l2.RateLimiter()
 }
 
 func channelCancelMain() {
