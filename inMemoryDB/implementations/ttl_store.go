@@ -6,7 +6,6 @@ import (
 	"sync"
 	"time"
 )
-var inf time.Time
 type KeyValueEntry struct {
 	value any
 	ttl time.Time
