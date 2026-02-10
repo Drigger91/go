@@ -76,6 +76,23 @@ func main() {
     // fmt.Println("Main done")
 	//l2.L2Main()
 	l2.RateLimiter()
+
+	var wg sync.WaitGroup
+	wg.Add(2)
+
+	go func(){
+		fmt.Println("Start")
+		time.Sleep(1 * time.Second)
+		fmt.Println("Stop")
+		wg.Done()
+	}()
+	go func(){
+		fmt.Println("Start1")
+		time.Sleep(1 * time.Second)
+		fmt.Println("Stop1")
+		wg.Done()
+	}()
+	wg.Wait()
 }
 
 func channelCancelMain() {
