@@ -1,0 +1,39 @@
+Entities : 
+
+- vehicle, ticket, lot, floors, parking slots, pricing strategy
+
+each lot -> contain floors -> each floor contain slots
+
+Slot -> id, isOccupied
+vehicle -> Type, registrationNumber
+pricingStrategy -> this will store rate corresponding to the lot & type
+
+ticket -> id, vehicleRegistrationNum, checkinTime, slotID
+
+parkingLot {
+    ticketStore // contains all the ticket, maybe datewise to get additional data such as how much money in a day or something like that
+    pricingStrategy //  returns pricing basis on time, rate whatever is put in initialisation
+    dataStore containing all slots // it will be helpful when the sot will become available after checkout, we can use this data to put it into index
+    index for available slots
+    lock -> to handle concurrency
+}
+
+requirements:
+
+intialisation -> have to take input no. of floors in a lots. Assigning strategy -> 1 -> truck, 2-4 -> Bike, 4-N -> car
+Flow : 
+checkin(Vehicle)
+    this checks whether there is a slot present to accommodate this type of vehicle or not
+
+    how to check whether a slot is available or not, we can store using a reverseIndex kind of think based on 
+    VehicleType map[VehicleType][]int {containing available slots}
+
+    generate a parkingTicket corresponding to the entry, save it
+
+    returns parkingTicketId, err 
+
+getAvailableSlots(VechileType) -> get all the available slots per floor basis of a corresponding VehicleType
+
+checkOut(parkingTicketId) -> checksout the corresponding vehicle
+
+how to display occupied slots? -> may be a separate index? or a one time calculation basis on the dataStore vs freeSlotIndex?
