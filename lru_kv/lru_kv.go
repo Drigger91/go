@@ -4,7 +4,11 @@ import (
 	"fmt"
 	"sync"
 )
-
+// important: the row level locking is technically not possible due to Get() getting called with non existent keys (good finding this yourself)
+// secondly if the global mutex becomes the bottleneck (eventually it will for millions of users), we should still not try and implement row
+// level locks as it is fundamentally flawed for this usecase (memory explosion of LoadOrStore()). We should move towards client side sharding kinda logic
+// it will involve one more layering, something like: KeyValueStore -> map[string]*LruShards (lrushards being the current implementation),
+//  and a func to calculate hash and pointing towards that shard. always remember not to complicate things with stuff like row level locks :)
 type KeyValueStoreLRU struct {
 	capacity int
 	// to store the values
